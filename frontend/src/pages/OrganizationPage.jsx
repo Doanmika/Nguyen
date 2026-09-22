@@ -4,6 +4,7 @@ import { useWallet } from '../context/WalletContext';
 import { API_BASE_URL } from '../contracts/contractConfig';
 import { useLanguage } from '../context/LanguageContext';
 import { formatEth, formatDate } from '../utils/format';
+import { parseBlockchainError } from '../utils/errorUtils';
 import {
   IconWallet, IconBuilding, IconCoins, IconCheckCircle, IconAlertCircle, IconClock
 } from '../components/Icons';
@@ -32,6 +33,7 @@ const OrganizationPage = () => {
   const [myCampaigns, setMyCampaigns] = useState([]);
   const [loadingCampaigns, setLoadingCampaigns] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [distErrorMsg, setDistErrorMsg] = useState('');
 
   const fetchMyCampaigns = useCallback(async () => {
     if (!account) return;
@@ -41,8 +43,8 @@ const OrganizationPage = () => {
       const data = await res.json();
       if (data.success) {
         setMyCampaigns(data.data);
-        if (data.data.length > 0 && !selectedCampaignId) {
-          setSelectedCampaignId(data.data[0].blockchainCampaignId.toString());
+        if (data.data.length > 0) {
+          setSelectedCampaignId((prev) => prev || data.data[0].blockchainCampaignId.toString());
         }
       }
     } catch (err) {
@@ -50,7 +52,7 @@ const OrganizationPage = () => {
     } finally {
       setLoadingCampaigns(false);
     }
-  }, [account, selectedCampaignId]);
+  }, [account]);
 
   useEffect(() => {
     if (account) {
@@ -126,7 +128,7 @@ const OrganizationPage = () => {
       fetchMyCampaigns();
     } catch (err) {
       console.error('Error creating campaign:', err);
-      setErrorMsg(err.reason || err.message || t('organization.createCampaignError'));
+      setErrorMsg(parseBlockchainError(err));
     } finally {
       setCreatingCampaign(false);
     }
@@ -135,16 +137,16 @@ const OrganizationPage = () => {
   // Xu ly tao yeu cau phan phoi tren Blockchain
   const handleCreateDistribution = async (e) => {
     e.preventDefault();
-    setErrorMsg('');
+    setDistErrorMsg('');
     setDistSuccess(null);
 
     if (!account || !contract) {
-      setErrorMsg(t('organization.contractNotFound'));
+      setDistErrorMsg(t('organization.contractNotFound'));
       return;
     }
 
     if (!selectedCampaignId) {
-      setErrorMsg(t('organization.noCampaignSelected'));
+      setDistErrorMsg(t('organization.noCampaignSelected'));
       return;
     }
 
@@ -198,7 +200,7 @@ const OrganizationPage = () => {
       setPurpose('');
     } catch (err) {
       console.error('Error creating distribution request:', err);
-      setErrorMsg(err.reason || err.message || t('organization.createDistributionError'));
+      setDistErrorMsg(parseBlockchainError(err));
     } finally {
       setCreatingDist(false);
     }
@@ -320,6 +322,11 @@ const OrganizationPage = () => {
                 <IconCheckCircle size={18} /> {distSuccess}
               </div>
             )}
+            {distErrorMsg && (
+              <div className="alert-box alert-danger" role="alert" aria-live="assertive">
+                <IconAlertCircle size={18} /> {distErrorMsg}
+              </div>
+            )}
 
             <form onSubmit={handleCreateDistribution}>
               <div className="form-group">
@@ -378,8 +385,9 @@ const OrganizationPage = () => {
 
               <button
                 type="submit"
-                className="btn-secondary full-width"
+                className="btn-primary full-width"
                 disabled={creatingDist || myCampaigns.length === 0}
+                style={{ padding: '12px', background: 'linear-gradient(135deg, var(--secondary) 0%, #047857 100%)' }}
               >
                 {creatingDist ? t('organization.submittingDistribution') : t('organization.submitDistribution')}
               </button>

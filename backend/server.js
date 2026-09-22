@@ -1,4 +1,8 @@
-﻿require('dotenv').config();
+try {
+  require('dns').setServers(['8.8.8.8', '1.1.1.1']);
+} catch (e) {}
+
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -63,6 +67,7 @@ app.get('/api/health', async (req, res) => {
       : 'Database chua ket noi',
     time: new Date(),
     database: dbStatus,
+    host: mongoose.connection.host || 'none',
     uptime: process.uptime(),
   });
 });
@@ -122,17 +127,6 @@ process.on('SIGINT', () => {
       process.exit(0);
     });
   });
-});
-
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err) => {
-  console.error('[Unhandled Rejection]', err.message || err);
-});
-
-// Handle uncaught exceptions
-process.on('uncaughtException', (err) => {
-  console.error('[Uncaught Exception]', err.message || err);
-  process.exit(1);
 });
 
 // Handle unhandled promise rejections

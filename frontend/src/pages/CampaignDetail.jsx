@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ethers } from 'ethers';
 import { useWallet } from '../context/WalletContext';
@@ -6,6 +6,7 @@ import { API_BASE_URL } from '../contracts/contractConfig';
 import { useLanguage } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
 import { formatEth, formatAddress, formatDate, formatDateTime } from '../utils/format';
+import { parseBlockchainError } from '../utils/errorUtils';
 import {
   IconExternalLink,
   IconWallet,
@@ -114,7 +115,7 @@ const CampaignDetail = () => {
       fetchData();
     } catch (err) {
       console.error('Donation error:', err);
-      setErrorMsg(err.reason || err.message || t('campaignDetail.transactionFailed'));
+      setErrorMsg(parseBlockchainError(err));
     } finally {
       setDonating(false);
     }

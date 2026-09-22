@@ -69,7 +69,9 @@ export const LanguageProvider = ({ children }) => {
       }
     }
     if (typeof value !== 'string') return key;
-    return value.replace(/\{\{(\w+)\}\}/g, (_, paramKey) => params[paramKey] || `{{${paramKey}}}`);
+    return value.replace(/\{\{(\w+)\}\}/g, (_, paramKey) => 
+      params[paramKey] !== undefined && params[paramKey] !== null ? params[paramKey] : `{{${paramKey}}}`
+    );
   };
 
   const value = {

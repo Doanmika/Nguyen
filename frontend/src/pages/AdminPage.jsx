@@ -3,6 +3,7 @@ import { ethers } from 'ethers';
 import { useWallet } from '../context/WalletContext';
 import { API_BASE_URL } from '../contracts/contractConfig';
 import { useLanguage } from '../context/LanguageContext';
+import { parseBlockchainError } from '../utils/errorUtils';
 
 const AdminPage = () => {
   const { account, contract, isAdmin, isSepolia, connectWallet, switchToSepolia } = useWallet();
@@ -59,7 +60,7 @@ const AdminPage = () => {
       fetchDistributions();
     } catch (err) {
       console.error('Error approving:', err);
-      setErrorMsg(err.reason || err.message || t('admin.approveError'));
+      setErrorMsg(parseBlockchainError(err));
     } finally {
       setActionLoading((prev) => ({ ...prev, [requestId]: null }));
     }
@@ -91,7 +92,7 @@ const AdminPage = () => {
       fetchDistributions();
     } catch (err) {
       console.error('Error executing:', err);
-      setErrorMsg(err.reason || err.message || t('admin.executeError'));
+      setErrorMsg(parseBlockchainError(err));
     } finally {
       setActionLoading((prev) => ({ ...prev, [requestId]: null }));
     }

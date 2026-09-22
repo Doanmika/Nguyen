@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const router = express.Router();
 const Campaign = require('../models/Campaign');
 
@@ -12,25 +12,31 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Lay chi tiet chien dich theo blockchainCampaignId
-router.get('/:id', async (req, res) => {
+// Lay danh sach chien dich theo vi to chuc (Khai bao TRUOC /:id)
+router.get('/organization/:wallet', async (req, res) => {
   try {
-    const campaign = await Campaign.findOne({ blockchainCampaignId: Number(req.params.id) });
-    if (!campaign) {
-      return res.status(404).json({ success: false, message: 'Khong tim thay chien dich' });
-    }
-    res.json({ success: true, data: campaign });
+    const wallet = req.params.wallet.toLowerCase();
+    const campaigns = await Campaign.find({
+      organizationWallet: { $regex: new RegExp(`^${wallet}$`, 'i') }
+    }).sort({ createdAt: -1 });
+    res.json({ success: true, data: campaigns });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
-// Lay danh sach chien dich theo vi to chuc
-router.get('/organization/:wallet', async (req, res) => {
+// Lay chi tiet chien dich theo blockchainCampaignId
+router.get('/:id', async (req, res) => {
   try {
-    const wallet = req.params.wallet.toLowerCase();
-    const campaigns = await Campaign.find({ organizationWallet: wallet }).sort({ createdAt: -1 });
-    res.json({ success: true, data: campaigns });
+    const idNum = Number(req.params.id);
+    if (isNaN(idNum)) {
+      return res.status(400).json({ success: false, message: 'ID khong hop le' });
+    }
+    const campaign = await Campaign.findOne({ blockchainCampaignId: idNum });
+    if (!campaign) {
+      return res.status(404).json({ success: false, message: 'Khong tim thay chien dich' });
+    }
+    res.json({ success: true, data: campaign });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
