@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useWallet } from '../context/WalletContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -45,11 +45,9 @@ const Navbar = ({ theme, onToggleTheme }) => {
     <nav className="navbar">
       <div className="nav-container">
         <div className="nav-brand-group">
-          <Link to="/" className="nav-logo" onClick={closeMenu}>
-            <div className="nav-logo-icon">
-              <IconHeartHandshake size={20} />
-            </div>
-            <span>{t('navbar.brand')}</span>
+          <Link to="/" className="nav-logo" onClick={closeMenu} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <img src="/logo.png" alt="Transparent Charity Logo" style={{ height: '42px', width: 'auto', objectFit: 'contain' }} />
+            <span>Transparent Charity</span>
           </Link>
           <span className="nav-badge-net">{t('navbar.networkBadge')}</span>
           <button

@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { CONTRACT_ADDRESS } from '../contracts/contractConfig';
 import { useLanguage } from '../context/LanguageContext';
 import { IconShieldCheck, IconExternalLink, IconHeartHandshake } from './Icons';
@@ -10,9 +10,9 @@ const Footer = () => {
     <footer className="footer">
       <div className="footer-container">
         <div>
-          <div className="footer-brand" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <IconHeartHandshake size={18} style={{ color: 'var(--primary)' }} />
-            {t('footer.brand')}
+          <div className="footer-brand" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <img src="/logo.png" alt="Transparent Charity Logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
+            <span>Transparent Charity</span>
           </div>
           <p className="footer-sub" style={{ marginTop: '4px' }}>
             {t('footer.description')}
