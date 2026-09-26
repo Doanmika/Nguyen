@@ -390,15 +390,24 @@ A simple project structure is:
 ```text
 transparent-charity/
 │
-├── PROJECT_OVERVIEW.md
-│
-├── frontend/
-│   └── React application
-│
-├── backend/
-│   └── Node.js application
-│
-└── blockchain/
-    └── CharityDonation.sol
+├── PROJECT_REPORT.md       # Báo cáo học thuật đồ án chi tiết (Nguyễn Quang Đoàn)
+├── PROJECT_OVERVIEW.md     # Tài liệu tổng quan đề tài
+├── HD_SU_DUNG.md           # Hướng dẫn cài đặt và kiểm thử 3 vai trò
+├── README.md               # Giới thiệu tổng quan dự án và tài liệu GitHub
+├── frontend/               # Ứng dụng React 19 + Vite 8
+├── backend/                # Máy chủ Node.js + Express + MongoDB Atlas
+└── blockchain/             # Smart Contract CharityDonation.sol
 ```
+
+---
+
+## 13. Deployment & Author Information
+
+* **Student Author:** **Nguyễn Quang Đoàn**
+* **Ethereum Network:** Sepolia Testnet
+* **Smart Contract Address:** `0x61528fc1d666AD81F252b67ab047ca12862e3E8b`
+* **Etherscan Link:** [https://sepolia.etherscan.io/address/0x61528fc1d666AD81F252b67ab047ca12862e3E8b](https://sepolia.etherscan.io/address/0x61528fc1d666AD81F252b67ab047ca12862e3E8b)
+* **Live Web Application:** [https://nguyen-2cb8.onrender.com](https://nguyen-2cb8.onrender.com)
+* **GitHub Repository:** [https://github.com/Doanmika/Nguyen.git](https://github.com/Doanmika/Nguyen.git)
+
 
