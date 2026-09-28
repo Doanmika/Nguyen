@@ -49,7 +49,10 @@ const AdminPage = () => {
       // Cap nhat DB
       await fetch(`${API_BASE_URL}/distributions/${requestId}/status`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-wallet-address': account || '',
+        },
         body: JSON.stringify({
           status: 'approved',
           transactionHash: tx.hash,
@@ -81,7 +84,10 @@ const AdminPage = () => {
       // Cap nhat DB
       await fetch(`${API_BASE_URL}/distributions/${requestId}/status`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-wallet-address': account || '',
+        },
         body: JSON.stringify({
           status: 'executed',
           transactionHash: tx.hash,

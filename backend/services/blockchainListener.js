@@ -1,4 +1,4 @@
-﻿const { ethers } = require('ethers');
+const { ethers } = require('ethers');
 const Campaign = require('../models/Campaign');
 const Donation = require('../models/Donation');
 const Distribution = require('../models/Distribution');
@@ -16,6 +16,16 @@ const initBlockchainListener = () => {
 
   try {
     const provider = new ethers.JsonRpcProvider(rpcUrl);
+    
+    // Catch filter/RPC provider polling errors silently to prevent process crash
+    provider.on('error', (err) => {
+      if (err && (err.message?.includes('filter not found') || err.code === -32000)) {
+        // Filter expired on public RPC node - safe to ignore as ethers will recreate
+        return;
+      }
+      console.warn('[Blockchain Listener Provider Warning]', err.message || err);
+    });
+
     const contract = new ethers.Contract(contractAddress, contractABI, provider);
 
     console.log(`[Blockchain Listener] Dang lang nghe Smart Contract tai dia chi: ${contractAddress}`);
@@ -44,7 +54,7 @@ const initBlockchainListener = () => {
       }
     });
 
-// 2. Lang nghe su kien DonationReceived
+    // 2. Lang nghe su kien DonationReceived
     contract.on('DonationReceived', async (campaignId, donor, amount, timestamp, event) => {
       try {
         console.log(`[Event: DonationReceived] Campaign: ${campaignId.toString()}, Donor: ${donor}, Amount: ${amount.toString()}`);
@@ -56,7 +66,6 @@ const initBlockchainListener = () => {
           return;
         }
 
-        // Kiem tra da ton tai donation voi txHash nay chua
         const existing = await Donation.findOne({ transactionHash: txHash });
         if (existing) {
           console.log(`[Event: DonationReceived] Donation da ton tai voi txHash: ${txHash}`);
@@ -78,7 +87,6 @@ const initBlockchainListener = () => {
         });
         await donation.save();
 
-        // Cap nhat totalDonated cho Campaign bang transaction
         try {
           await updateCampaignTotal(cId, 'totalDonated', amount.toString());
         } catch (e) {
@@ -111,15 +119,15 @@ const initBlockchainListener = () => {
       try {
         console.log(`[Event: FundDistributed] Request ID: ${requestId.toString()}, Recipient: ${recipient}, Amount: ${amount.toString()}`);
         const reqId = Number(requestId);
+        const cId = Number(campaignId);
         const txHash = event.log ? event.log.transactionHash.toLowerCase() : '';
 
-let dist = await Distribution.findOne({ blockchainRequestId: reqId });
+        let dist = await Distribution.findOne({ blockchainRequestId: reqId });
         if (dist) {
           dist.status = 'executed';
           if (txHash) dist.transactionHash = txHash;
           await dist.save();
 
-          // Cap nhat totalDistributed cho Campaign bang transaction
           try {
             await updateCampaignTotal(cId, 'totalDistributed', amount.toString());
           } catch (e) {

@@ -23,3 +23,6 @@ pnpm-debug.log*
 # OS
 .DS_Store
 Thumbs.db
+
+# User private graduation report
+PROJECT_REPORT.md

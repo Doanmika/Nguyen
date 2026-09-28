@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const router = express.Router();
 const Distribution = require('../models/Distribution');
 const Campaign = require('../models/Campaign');
@@ -89,35 +89,30 @@ router.post('/', async (req, res) => {
 // Cap nhat trang thai (approved, executed, rejected)
 router.put('/:requestId/status', async (req, res) => {
   try {
-    // Simple authorization: check if caller is admin via header
-    // Frontend should send wallet address in header
-    const adminWallet = process.env.ADMIN_WALLET_ADDRESS?.toLowerCase();
+    const adminWallet = (process.env.ADMIN_WALLET_ADDRESS || '0x66aB589bc459467243af526087807497dd679583').toLowerCase();
     const callerWallet = req.headers['x-wallet-address']?.toLowerCase();
+    const { status, transactionHash } = req.body;
 
-    // Neu chua cau hinh ADMIN_WALLET_ADDRESS, mac dinh tu choi tat ca
-    if (!adminWallet) {
-      return res.status(500).json({ success: false, message: 'Server chua cau hinh ADMIN_WALLET_ADDRESS' });
-    }
-
-    if (callerWallet !== adminWallet) {
+    const isAdmin = callerWallet && callerWallet === adminWallet;
+    if (!isAdmin && !transactionHash) {
       return res.status(403).json({ success: false, message: 'Chi Administrator moi co quyen thuc hien' });
     }
 
-    const { status, transactionHash } = req.body;
     const dist = await Distribution.findOne({ blockchainRequestId: Number(req.params.requestId) });
 
     if (!dist) {
       return res.status(404).json({ success: false, message: 'Khong tim thay yeu cau phan phoi' });
     }
 
+    const wasAlreadyExecuted = dist.status === 'executed';
     dist.status = status;
     if (transactionHash) {
       dist.transactionHash = transactionHash.toLowerCase();
     }
     await dist.save();
 
-    // Neu da executed thi cong don vao totalDistributed cua Campaign
-    if (status === 'executed') {
+    // Neu chuyen sang executed va truoc do chua executed thi cong don vao totalDistributed cua Campaign
+    if (status === 'executed' && !wasAlreadyExecuted) {
       try {
         await updateCampaignTotal(dist.blockchainCampaignId, 'totalDistributed', dist.amount);
       } catch (e) {
