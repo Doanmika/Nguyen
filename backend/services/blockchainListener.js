@@ -124,14 +124,17 @@ const initBlockchainListener = () => {
 
         let dist = await Distribution.findOne({ blockchainRequestId: reqId });
         if (dist) {
+          const wasAlreadyExecuted = dist.status === 'executed';
           dist.status = 'executed';
           if (txHash) dist.transactionHash = txHash;
           await dist.save();
 
-          try {
-            await updateCampaignTotal(cId, 'totalDistributed', amount.toString());
-          } catch (e) {
-            console.error('Loi cap nhat totalDistributed:', e.message);
+          if (!wasAlreadyExecuted) {
+            try {
+              await updateCampaignTotal(cId, 'totalDistributed', amount.toString());
+            } catch (e) {
+              console.error('Loi cap nhat totalDistributed:', e.message);
+            }
           }
           console.log(`[DB] Da cap nhat status = executed cho Request ${reqId}`);
         }
